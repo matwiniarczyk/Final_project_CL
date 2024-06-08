@@ -1,0 +1,22 @@
+# Katalog wirtualnego środowiska
+.venv/
+
+# Pliki i katalogi wygenerowane przez system operacyjny
+*.log
+*.pot
+*.pyc
+__pycache__/
+
+# Katalogi tworzone przez edytory i środowiska IDE
+.idea/
+.vscode/
+
+# Pliki baz danych SQLite
+*.sqlite3
+
+# Pliki i katalogi specyficzne dla projektu Django
+media/
+static/
+
+# Pliki konfiguracyjne specyficzne dla użytkownika
+.env
