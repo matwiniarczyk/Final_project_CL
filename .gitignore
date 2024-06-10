@@ -20,3 +20,7 @@ static/
 
 # Pliki konfiguracyjne specyficzne dla użytkownika
 .env
+
+
+# Pliki dodatkowe
+notes.py

@@ -1,0 +1,14 @@
+<div>
+    <div>
+{#        <a href="{% url '' %}"></a>#}
+    </div>
+    <div>
+        {% if user.is_authenticated %}
+            Witaj{{ user }}! Zapraszamy na najbliższe spotkanie!
+            <a href="{% url 'logout' %}">wyloguj</a>
+        {% else %}
+            <a href="{% url 'register' %}">zarejestruj</a>
+            <a href="{% url 'login' %}">zaloguj</a>
+        {% endif %}
+    </div>
+</div>
