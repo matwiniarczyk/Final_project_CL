@@ -27,7 +27,7 @@ class Sport(models.Model):
 class Court(models.Model):
     name = models.CharField(max_length=50)
     location = models.CharField(max_length=50)
-    paid_parking_around = models.BooleanField(default=False)
+    free_parking_around = models.BooleanField(default=False)
     intended_for = models.ManyToManyField(Sport)
 
 

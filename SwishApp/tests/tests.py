@@ -3,7 +3,8 @@ from django.contrib.auth.models import User
 from django.test import TestCase, Client
 from django.urls import reverse
 
-from SwishApp.forms import SearchCourtForm
+from SwishApp.forms import SearchCourtForm, AddCourtForm
+from SwishApp.models import Court
 
 
 # TESTY WYSZUKIWANIA BOISK
@@ -13,6 +14,7 @@ def test_search_court_get():
     client = Client()
     response = client.get(url)
     assert response.status_code == 200
+    assert 'form' in response.context
     assert isinstance(response.context['form'], SearchCourtForm)
     # dodatkowo sprawdzamy, czy przekazany do kontekstu formularz należy do klasy SearchCourtForm
 
@@ -43,22 +45,58 @@ def test_search_court_post_invalid_data(invalid_court_data):
 
 
 @pytest.mark.django_db
-def test_search_court_post_no_results(court_data):
+def test_search_court_post_no_results(no_matching_court):
     url = reverse('search_court')
     client = Client()
-    response = client.post(url, {
-        'location': 'None_existing_location',
-        'intended_for': court_data['intended_for']
-    })
-
+    response = client.post(url, no_matching_court)
     assert response.status_code == 200
     assert 'searched_courts' not in response.context
-    assert response.templates[0].name == 'swishapp/no_matching_courts.html'
-    # response.templates to lista a pierwszy z jej elementów to będzie główny szablon użyty do wygenerowania odpowiedzi
+    assert 'form' not in response.context
+    assert 'swishapp/no_matching_courts.html' in response.templates[0].name
+    # response.templates to lista a pierwszy z jej elementów to zazwyczaj szablon użyty do wygenerowania odpowiedzi
 
 
-# TEST DODAWANIA BOISK
+# TESTY DODAWANIA BOISK
 
 @pytest.mark.django_db
 def test_add_court_get(court_data):
-    pass
+    url = reverse('add_court')
+    client = Client()
+    response = client.get(url)
+    assert response.status_code == 200
+    assert 'form' in response.context
+    assert isinstance(response.context['form'], AddCourtForm)
+
+
+@pytest.mark.django_db
+def test_add_court_post(court_data):
+    url = reverse('add_court')
+    client = Client()
+    response = client.post(url, court_data)
+    assert response.status_code == 302
+    assert Court.objects.filter(name=court_data['name']).exists()
+
+
+@pytest.mark.django_db
+def test_add_court_post_invalid_data(invalid_court_data):
+    url = reverse('add_court')
+    client = Client()
+    response = client.post(url, invalid_court_data)
+    assert response.status_code == 200
+    assert 'form' in response.context
+    form = response.context['form']
+    assert form.errors
+
+
+# TEST LISTY BOISK
+
+
+@pytest.mark.django_db
+def test_court_list_get(court_list):
+    url = reverse('court_list')
+    client = Client()
+    response = client.get(url)
+    assert response.status_code == 200
+    assert response.context['courts'].count() == len(court_list)
+    for court in court_list:
+        assert court in response.context['courts']
