@@ -1,10 +1,12 @@
-<div>
+<div class="topnav">
     <div>
-{#        <a href="{% url '' %}"></a>#}
+        <a href="{% url 'search_court' %}">Znajdź mecz</a>
+        <a href="{% url 'search_court' %}">Znajdź mecz</a>
+        <a href="{% url 'search_court' %}">Znajdź mecz</a>
     </div>
     <div>
         {% if user.is_authenticated %}
-            Witaj{{ user }}! Zapraszamy na najbliższe spotkanie!
+            Witaj{{ user }}! Znajdź mecz dla siebie!
             <a href="{% url 'logout' %}">wyloguj</a>
         {% else %}
             <a href="{% url 'register' %}">zarejestruj</a>

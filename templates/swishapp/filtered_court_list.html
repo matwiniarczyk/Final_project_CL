@@ -1,0 +1,7 @@
+<h2>Results</h2>
+<ul>
+    {% for court in searched_courts %}
+        <li>{{ court.name }} - {{ court.location }}</li>
+    {% endfor %}
+</ul>
+

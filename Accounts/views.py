@@ -17,7 +17,8 @@ class CreateUserView(View):
             u.set_password(password)
             u.save()
             return redirect('base')
-        return render(request, "accounts/create_user.html", {"error": "Passwords do not match"})
+        return render(request, "accounts/create_user.html",
+                      {"error": "Passwords do not match, try again!"})
 
 
 class LoginView(View):

@@ -3,27 +3,30 @@ from django.db import models
 
 
 class Sport(models.Model):
-    BB = 'BB'
-    VB = 'VB'
-    FB = 'FB'
-    HB = 'HB'
-    TN = 'TN'
-    PP = 'PP'
+    BASKETBALL = 'Basketball'
+    VOLLEYBALL = 'Volleyball'
+    FOOTBALL = 'Football'
+    HANDBALL = 'Handball'
+    TENNIS = 'Tennis'
+    PING_PONG = 'Ping-pong'
 
     SPORT_CHOICES = {
-        (BB, 'basketball'),
-        (VB, 'volleyball'),
-        (FB, 'football'),
-        (HB, 'handball'),
-        (TN, 'tennis'),
-        (PP, 'ping-pong'),
+        (BASKETBALL, 'Basketball'),
+        (VOLLEYBALL, 'Volleyball'),
+        (FOOTBALL, 'Football'),
+        (HANDBALL, 'Handball'),
+        (TENNIS, 'Tennis'),
+        (PING_PONG, 'Ping-pong'),
     }
-    name = models.CharField(max_length=2, choices=SPORT_CHOICES)
+    name = models.CharField(max_length=20, choices=SPORT_CHOICES)
+
+    def __str__(self):
+        return self.name
 
 
 class Court(models.Model):
     name = models.CharField(max_length=50)
-    localisation = models.CharField(max_length=50)
+    location = models.CharField(max_length=50)
     paid_parking_around = models.BooleanField(default=False)
     intended_for = models.ManyToManyField(Sport)
 

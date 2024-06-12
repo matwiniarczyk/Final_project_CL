@@ -1,12 +1,18 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>HomePage</title>
+    <link type="text/css" href="{% static 'base.css' %}" rel="stylesheet">
 </head>
 <body>
 <div>
     {% include 'top_headers.html' %}
+</div>
+<div>
+    {% block content %}
+    {% endblock %}
 </div>
 </body>
 </html>
