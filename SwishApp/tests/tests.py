@@ -1,10 +1,11 @@
 import pytest
 from django.contrib.auth.models import User
+from django.contrib.messages import get_messages
 from django.test import TestCase, Client
 from django.urls import reverse
 
 from SwishApp.forms import SearchCourtForm, AddCourtForm
-from SwishApp.models import Court
+from SwishApp.models import Court, Match
 
 
 # TESTY WYSZUKIWANIA BOISK
@@ -57,7 +58,6 @@ def test_search_court_post_no_results(no_matching_court):
 
 
 # TESTY DODAWANIA BOISK
-
 @pytest.mark.django_db
 def test_add_court_get(court_data):
     url = reverse('add_court')
@@ -89,8 +89,6 @@ def test_add_court_post_invalid_data(invalid_court_data):
 
 
 # TEST LISTY BOISK
-
-
 @pytest.mark.django_db
 def test_court_list_get(court_list):
     url = reverse('court_list')
@@ -100,3 +98,75 @@ def test_court_list_get(court_list):
     assert response.context['courts'].count() == len(court_list)
     for court in court_list:
         assert court in response.context['courts']
+
+
+# TEST WIDOKU SZCZEGÓŁOWEGO BOISK
+@pytest.mark.django_db
+def test_court_detail_get(court_matches):
+    court, matches = court_matches
+    url = reverse('court_detail', kwargs={'pk': court.id})
+    client = Client()
+    response = client.get(url)
+    assert response.status_code == 200
+    assert 'court' in response.context
+    assert 'matches' in response.context
+    assert response.context['court'] == court
+    assert list(response.context['matches']) == list(court.match_set.all())
+    assert court.name in str(response.content)
+    for match in matches:
+        assert match.get_day_display() in str(response.content)
+
+
+# TESTY DODAWANIA MECZU
+@pytest.mark.django_db
+def test_add_match_get():
+    court = Court.objects.create()
+    url = reverse('add_match', kwargs={'pk': court.id})
+    client = Client()
+    user = User.objects.create_user(username='test', password='test')
+    client.force_login(user)
+    response = client.get(url)
+    assert response.status_code == 200
+    assert 'court' in response.context
+    assert 'day_choices' in response.context
+    assert 'time_choices' in response.context
+    assert 'sports' in response.context
+
+
+@pytest.mark.django_db
+def test_add_match_post(match_data):
+    url = reverse('add_match', kwargs={'pk': match_data['court']})
+    client = Client()
+    user = User.objects.create_user(username='test', password='test')
+    client.force_login(user)
+    response = client.post(url, match_data)
+    assert response.status_code == 302
+    assert Match.objects.filter(day=match_data['day'], time=match_data['time']).exists()
+    messages = list(get_messages(response.wsgi_request))
+    # response.wsgi_request to obiekt żądania HTTP, do którego jest przypisana odpowiedź response
+    assert len(messages) == 1
+    assert messages[0].tags == 'success'
+    assert messages[0].message == 'Match added'
+    # --------------------------------------#
+
+    # response = client.post(url, match_data)
+    # assert response.status_code == 302
+    # messages = list(get_messages(response.wsgi_request))
+    # assert len(messages) == 2
+    # assert messages[0].tags == 'error'
+    # assert messages[0].message == 'This match already exists'
+
+
+# TEST LISTY MECZÓW
+@pytest.mark.django_db
+def test_matches_list_get(matches_list):
+    matches, court = matches_list
+    url = reverse('matches_list', kwargs={'pk': court.id})
+    client = Client()
+    response = client.get(url)
+    assert response.status_code == 200
+    assert 'court' in response.context
+    assert response.context['court'] == court
+    assert response.context['matches'].count() == len(matches)
+    for match in matches:
+        assert match in response.context['matches']

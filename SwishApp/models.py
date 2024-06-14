@@ -30,29 +30,36 @@ class Court(models.Model):
     free_parking_around = models.BooleanField(default=False)
     intended_for = models.ManyToManyField(Sport)
 
-
-class DaySurvey(models.Model):
-    DAY_CHOICES = {
-        (1, 'friday'),
-        (2, 'saturday'),
-        (3, 'sunday'),
-    }
-    answer = models.IntegerField(choices=DAY_CHOICES)
-
-
-class TimeSurvey(models.Model):
-    TIME_CHOICES = {
-        (1, '13:00'),
-        (2, '16:00'),
-        (3, '19:00'),
-    }
-    answer = models.IntegerField(choices=TIME_CHOICES)
+    def __str__(self):
+        return self.name
 
 
 class Match(models.Model):
-    court = models.ForeignKey(Court, on_delete=models.CASCADE)
-    day = models.ForeignKey(DaySurvey, on_delete=models.CASCADE, default=None)
-    time = models.ForeignKey(TimeSurvey, on_delete=models.CASCADE, default=None)
+    TIME_CHOICES = (
+        (1, '13:00'),
+        (2, '16:00'),
+        (3, '19:00'),
+    )
+
+    DAY_CHOICES = (
+        (1, 'monday'),
+        (2, 'tuesday'),
+        (3, 'wednesday'),
+        (4, 'thursday'),
+        (5, 'friday'),
+        (6, 'saturday'),
+        (7, 'sunday'),
+    )
+
+    court = models.ManyToManyField(Court)
+    sport = models.ForeignKey(Sport, on_delete=models.CASCADE, default=None)
+    day = models.IntegerField(choices=DAY_CHOICES)
+    time = models.IntegerField(choices=TIME_CHOICES)
+    added_by = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.get_day_display()} {self.get_time_display()}"
+    # get_FOO_display() - metoda dla pól które mają zdefiniowane choices
 
 
 class Comment(models.Model):

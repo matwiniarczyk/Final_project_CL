@@ -27,6 +27,7 @@
                         no
                     {% endif %}
                 </td>
+                <td><a href="{% url 'court_detail' court.id %}"><button>MORE INFO</button></a></td>
             </tr>
         {% endfor %}
         </tbody>

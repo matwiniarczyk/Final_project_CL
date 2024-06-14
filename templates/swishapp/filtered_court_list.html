@@ -1,7 +1,9 @@
 <h2>Results</h2>
 <ul>
     {% for court in searched_courts %}
-        <li>{{ court.name }} - {{ court.location }}</li>
+        <li>{{ court.name }} - {{ court.location }}        
+            <a href="{% url 'court_detail' court.pk %}"><button>MORE INFO</button></a>
+        </li>
     {% endfor %}
 </ul>
 

@@ -1,8 +1,11 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
+from django.contrib import messages
 from django.views import View
 
+
 from SwishApp.forms import SearchCourtForm, AddCourtForm
-from SwishApp.models import Court, Sport
+from SwishApp.models import Court, Sport, Match
 
 
 class SearchCourtView(View):
@@ -45,11 +48,57 @@ class AddCourtView(View):
                 location=location,
                 free_parking_around=free_parking_around)
             added_court.intended_for.set(intended_for)
-            return redirect('court_list')
+            return redirect('court_detail', added_court.pk)
         return render(request, 'swishapp/add_court.html', {'form': form})
 
 
 class CourtListView(View):
     def get(self, request):
-        courts = Court.objects.all()
+        courts = Court.objects.all().order_by('location')
         return render(request, 'swishapp/court_list.html', {'courts': courts})
+
+
+class CourtDetailView(View):
+    def get(self, request, pk):
+        court = Court.objects.get(pk=pk)
+        matches = Match.objects.filter(court=court)
+        return render(request, 'swishapp/court_detail.html', {'court': court, 'matches': matches})
+
+
+class AddMatchView(LoginRequiredMixin, View):
+    def get(self, request, pk):
+        court = Court.objects.get(pk=pk)
+        day_choices = Match.DAY_CHOICES
+        time_choices = Match.TIME_CHOICES
+        sports = court.intended_for.all()
+        return render(request, 'swishapp/add_match.html',
+                      {'court': court,
+                       'day_choices': day_choices,
+                       'time_choices': time_choices,
+                       'sports': sports
+                       })
+
+    def post(self, request, pk):
+        court = Court.objects.get(pk=pk)
+        day = request.POST['day']
+        time = request.POST['time']
+        sport_id = request.POST['sport']
+        sport = Sport.objects.get(id=sport_id)
+        added_by = request.user
+        match = Match.objects.filter(court=court, day=day, time=time, sport=sport)
+        if match.exists():
+            messages.error(request, 'This match already exists')
+            return redirect('add_match', pk=pk)
+        else:
+            added_match = Match.objects.create(sport=sport, day=day, time=time, added_by=added_by)
+            added_match.court.set([court])
+            messages.success(request, 'Match added')
+            return redirect('court_detail', pk=court.pk)
+
+
+class MatchesListView(View):
+    def get(self, request, pk):
+        court = Court.objects.get(pk=pk)
+        matches = Match.objects.filter(court=court)
+        return render(request, 'swishapp/court_detail.html', {'matches': matches,
+                                                              'court': court})

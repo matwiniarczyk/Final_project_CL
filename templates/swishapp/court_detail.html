@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block content %}
+    <table>
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Location</th>
+            <th>Intended for</th>
+            <th>Free parking</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>{{ court.name }}</td>
+            <td>{{ court.location }}</td>
+            <td>
+                {% for sport in court.intended_for.all %}
+                    {{ sport.name }}{% if not forloop.last %},{% endif %}
+                    {#forloop.last - zmienna kontekstowa pętli for, która zwraca true na ostatnim przetwarzanym elemencie#}
+                {% endfor %}
+            </td>
+            <td>
+                {% if court.free_parking_around %}
+                    yes
+                {% else %}
+                    no
+                {% endif %}
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <br>
+    MATCHES:
+    <ol>
+        {% for match in matches %}
+            <li> Day: {{ match.get_day_display }}, Time: {{ match.get_time_display }}, {{ match.sport }}</li>
+        {% endfor %}
+    </ol>
+    <br>
+    ADD ANOTHER MATCH:
+    <a href="{% url 'add_match' court.id %}">
+        <button>ADD MATCH</button>
+    </a>
+{% endblock %}

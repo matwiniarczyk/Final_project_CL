@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h2>Add a match at {{ court.name }} {{ court.location }}</h2>
+
+    <form method="POST">
+        {% csrf_token %}
+        <input type="text" name="court" value="{{ court.name }}" readonly>
+
+        <label for="day">Day: </label>
+        <select name="day" id="day">
+            {% for value, label in day_choices %}
+                <option value="{{ value }}">{{ label }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="time">Time: </label>
+        <select name="time" id="time">
+            {% for value, label in time_choices %}
+                <option value="{{ value }}">{{ label }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="sport">Sport: </label>
+        <select name="sport" id="sport">
+            {% for sport in sports %}
+                <option value="{{ sport.id }}">{{ sport.name }}</option>
+            {% endfor %}
+        </select>
+
+        <input type="submit" value="Add">
+    </form>
+    
+    {% if messages %}
+        <ul>
+            {% for message in messages %}
+                <li> {{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    <br>
+     <a href="{% url 'court_detail' court.pk %}"><button>BACK TO COURT DETAILS</button></a>
+{% endblock %}

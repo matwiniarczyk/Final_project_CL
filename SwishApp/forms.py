@@ -1,6 +1,6 @@
 from django import forms
 
-from SwishApp.models import Court, Sport
+from SwishApp.models import Court, Sport, Match
 
 
 # WALIDATORY
@@ -27,3 +27,4 @@ class AddCourtForm(forms.ModelForm):
     class Meta:
         model = Court
         fields = '__all__'
+
