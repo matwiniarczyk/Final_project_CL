@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1>Update {{ court }}?</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" value="Update">
+    </form>
+    <br>
+    <a href="{% url 'court_list' %}"><button>BACK TO COURT LIST</button></a>
+{% endblock %}

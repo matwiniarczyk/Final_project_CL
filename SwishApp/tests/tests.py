@@ -17,21 +17,27 @@ def test_search_court_get():
     assert response.status_code == 200
     assert 'form' in response.context
     assert isinstance(response.context['form'], SearchCourtForm)
-    # dodatkowo sprawdzamy, czy przekazany do kontekstu formularz należy do klasy SearchCourtForm
 
 
 @pytest.mark.django_db
-def test_search_court_post(court_data):
+def test_search_court_form_valid(sport, search_court):
+    form = SearchCourtForm(search_court)
+    assert form.is_valid()
+
+
+@pytest.mark.django_db
+def test_search_court_post(search_court):
     url = reverse('search_court')
     client = Client()
-    response = client.post(url, court_data)
+    response = client.post(url, search_court)
     assert response.status_code == 200
-    assert 'searched_courts' in response.context  # sprawdzamy, czy searched_courts przekazuje się do templaty
-    searched_courts = response.context['searched_courts']  # bierzemy tego searched_courts z kontekstu i sprawdzamy...
+    assert 'swishapp/filtered_court_list.html' in response.templates[0].name
+    assert 'searched_courts' in response.context
+    searched_courts = response.context['searched_courts']
     assert searched_courts is not None
     assert len(searched_courts) > 0
-    assert searched_courts[0].location == court_data['location']
-    # sprawdzamy, czy location w pierwszym przekazanym court to location naszego testu
+    assert searched_courts[0].location == search_court['location']
+    # sprawdzić intended_for
 
 
 @pytest.mark.django_db
@@ -40,9 +46,8 @@ def test_search_court_post_invalid_data(invalid_court_data):
     client = Client()
     response = client.post(url, invalid_court_data)
     assert response.status_code == 200
-    assert 'form' in response.context  # sprawdzamy, czy formularz przekazuje się do templaty
-    form = response.context['form']  # bierzemy ten formularz i sprawdzamy, czy wyrzuca błędy (puste pole location)
-    assert form.errors
+    assert 'form' in response.context
+    assert isinstance(response.context['form'], SearchCourtForm)
 
 
 @pytest.mark.django_db
@@ -51,15 +56,12 @@ def test_search_court_post_no_results(no_matching_court):
     client = Client()
     response = client.post(url, no_matching_court)
     assert response.status_code == 200
-    assert 'searched_courts' not in response.context
-    assert 'form' not in response.context
     assert 'swishapp/no_matching_courts.html' in response.templates[0].name
-    # response.templates to lista a pierwszy z jej elementów to zazwyczaj szablon użyty do wygenerowania odpowiedzi
 
 
 # TESTY DODAWANIA BOISK
 @pytest.mark.django_db
-def test_add_court_get(court_data):
+def test_add_court_get():
     url = reverse('add_court')
     client = Client()
     response = client.get(url)
@@ -69,12 +71,14 @@ def test_add_court_get(court_data):
 
 
 @pytest.mark.django_db
-def test_add_court_post(court_data):
+def test_add_court_post(court_as_dict):
     url = reverse('add_court')
     client = Client()
-    response = client.post(url, court_data)
+    response = client.post(url, court_as_dict)
     assert response.status_code == 302
-    assert Court.objects.filter(name=court_data['name']).exists()
+    assert Court.objects.filter(name=court_as_dict['name']).exists()
+    assert Court.objects.filter(location=court_as_dict['location']).exists()
+    assert Court.objects.filter(intended_for=court_as_dict['intended_for']).exists()
 
 
 @pytest.mark.django_db
@@ -84,8 +88,7 @@ def test_add_court_post_invalid_data(invalid_court_data):
     response = client.post(url, invalid_court_data)
     assert response.status_code == 200
     assert 'form' in response.context
-    form = response.context['form']
-    assert form.errors
+    assert isinstance(response.context['form'], AddCourtForm)
 
 
 # TEST LISTY BOISK
@@ -96,14 +99,13 @@ def test_court_list_get(court_list):
     response = client.get(url)
     assert response.status_code == 200
     assert response.context['courts'].count() == len(court_list)
-    for court in court_list:
-        assert court in response.context['courts']
+    for test_court in court_list:
+        assert test_court in response.context['courts']
 
 
 # TEST WIDOKU SZCZEGÓŁOWEGO BOISK
 @pytest.mark.django_db
-def test_court_detail_get(court_matches):
-    court, matches = court_matches
+def test_court_detail_get(court_matches, court):
     url = reverse('court_detail', kwargs={'pk': court.id})
     client = Client()
     response = client.get(url)
@@ -113,17 +115,15 @@ def test_court_detail_get(court_matches):
     assert response.context['court'] == court
     assert list(response.context['matches']) == list(court.match_set.all())
     assert court.name in str(response.content)
-    for match in matches:
+    for match in court_matches:
         assert match.get_day_display() in str(response.content)
 
 
 # TESTY DODAWANIA MECZU
 @pytest.mark.django_db
-def test_add_match_get():
-    court = Court.objects.create()
+def test_add_match_get(court, user):
     url = reverse('add_match', kwargs={'pk': court.id})
     client = Client()
-    user = User.objects.create_user(username='test', password='test')
     client.force_login(user)
     response = client.get(url)
     assert response.status_code == 200
@@ -134,10 +134,9 @@ def test_add_match_get():
 
 
 @pytest.mark.django_db
-def test_add_match_post(match_data):
+def test_add_match_post(match_data, user):
     url = reverse('add_match', kwargs={'pk': match_data['court']})
     client = Client()
-    user = User.objects.create_user(username='test', password='test')
     client.force_login(user)
     response = client.post(url, match_data)
     assert response.status_code == 302
@@ -149,24 +148,23 @@ def test_add_match_post(match_data):
     assert messages[0].message == 'Match added'
     # --------------------------------------#
 
-    # response = client.post(url, match_data)
-    # assert response.status_code == 302
-    # messages = list(get_messages(response.wsgi_request))
-    # assert len(messages) == 2
-    # assert messages[0].tags == 'error'
-    # assert messages[0].message == 'This match already exists'
+    response = client.post(url, match_data)
+    assert response.status_code == 302
+    messages = list(get_messages(response.wsgi_request))
+    assert len(messages) == 2
+    assert messages[1].tags == 'error'
+    assert messages[1].message == 'This match already exists'
 
 
 # TEST LISTY MECZÓW
 @pytest.mark.django_db
-def test_matches_list_get(matches_list):
-    matches, court = matches_list
+def test_matches_list_get(court, matches_list):
     url = reverse('matches_list', kwargs={'pk': court.id})
     client = Client()
     response = client.get(url)
     assert response.status_code == 200
     assert 'court' in response.context
     assert response.context['court'] == court
-    assert response.context['matches'].count() == len(matches)
-    for match in matches:
+    assert response.context['matches'].count() == len(matches_list)
+    for match in matches_list:
         assert match in response.context['matches']

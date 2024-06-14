@@ -37,8 +37,11 @@
         {% endfor %}
     </ol>
     <br>
-    ADD ANOTHER MATCH:
+    ADD ANOTHER MATCH - 
     <a href="{% url 'add_match' court.id %}">
         <button>ADD MATCH</button>
     </a>
+    <br>
+    <br>
+    <a href="{% url 'court_list' %}"><button>BACK TO COURT LIST</button></a>
 {% endblock %}

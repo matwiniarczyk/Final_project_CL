@@ -28,3 +28,4 @@ class AddCourtForm(forms.ModelForm):
         model = Court
         fields = '__all__'
 
+

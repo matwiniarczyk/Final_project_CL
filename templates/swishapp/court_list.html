@@ -17,7 +17,7 @@
                 <td>
                     {% for sport in court.intended_for.all %}
                         {{ sport.name }}{% if not forloop.last %},{% endif %}
-    {#forloop.last - zmienna kontekstowa pętli for, która zwraca true na ostatnim przetwarzanym elemencie#}
+                        {#forloop.last - zmienna kontekstowa pętli for, która zwraca true na ostatnim przetwarzanym elemencie#}
                     {% endfor %}
                 </td>
                 <td>
@@ -27,7 +27,17 @@
                         no
                     {% endif %}
                 </td>
-                <td><a href="{% url 'court_detail' court.id %}"><button>MORE INFO</button></a></td>
+                <td>
+                    <a href="{% url 'court_detail' court.id %}">
+                        <button>MORE INFO</button>
+                    </a>
+                </td>
+                <td>
+                    {% if user.is_superuser %}
+                            <a href="{% url 'delete_court' court.id %}"><button type="submit">Delete Court</button></a>
+                            <a href="{% url 'update_court' court.id %}"><button type="submit">Update Court</button></a>
+                    {% endif %}
+                </td>
             </tr>
         {% endfor %}
         </tbody>

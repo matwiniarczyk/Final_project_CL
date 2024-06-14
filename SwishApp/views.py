@@ -1,8 +1,9 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin, PermissionRequiredMixin
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from django.urls import reverse_lazy
 from django.views import View
-
+from django.views.generic import DeleteView, UpdateView
 
 from SwishApp.forms import SearchCourtForm, AddCourtForm
 from SwishApp.models import Court, Sport, Match
@@ -52,10 +53,19 @@ class AddCourtView(View):
         return render(request, 'swishapp/add_court.html', {'form': form})
 
 
-class CourtListView(View):
-    def get(self, request):
-        courts = Court.objects.all().order_by('location')
-        return render(request, 'swishapp/court_list.html', {'courts': courts})
+class DeleteCourtView(PermissionRequiredMixin, DeleteView):
+    permission_required = ["swishapp.delete_court"]
+    model = Court
+    template_name = "swishapp/delete_court.html"
+    success_url = reverse_lazy("court_list")
+
+
+class UpdateCourtView(PermissionRequiredMixin, UpdateView):
+    permission_required = ["swishapp.update_court"]
+    model = Court
+    form_class = AddCourtForm
+    template_name = "swishapp/update_court.html"
+    success_url = reverse_lazy("court_list")
 
 
 class CourtDetailView(View):
@@ -63,6 +73,12 @@ class CourtDetailView(View):
         court = Court.objects.get(pk=pk)
         matches = Match.objects.filter(court=court)
         return render(request, 'swishapp/court_detail.html', {'court': court, 'matches': matches})
+
+
+class CourtListView(View):
+    def get(self, request):
+        courts = Court.objects.all().order_by('location')
+        return render(request, 'swishapp/court_list.html', {'courts': courts})
 
 
 class AddMatchView(LoginRequiredMixin, View):
