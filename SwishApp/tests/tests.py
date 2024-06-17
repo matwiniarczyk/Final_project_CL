@@ -4,8 +4,8 @@ from django.contrib.messages import get_messages
 from django.test import TestCase, Client
 from django.urls import reverse
 
-from SwishApp.forms import SearchCourtForm, AddCourtForm
-from SwishApp.models import Court, Match
+from SwishApp.forms import SearchCourtForm, AddCourtForm, AddCommentForm
+from SwishApp.models import Court, Match, Comment
 
 
 # TESTY WYSZUKIWANIA BOISK
@@ -207,3 +207,62 @@ def test_update_court_post(user, court, update_court):
     assert updated_court.name == 'update_name'
     assert updated_court.location == 'updatelocation'
 
+
+# TESTY DODAWANIA KOMENTARZA
+@pytest.mark.django_db
+def test_add_comment_get(user, court):
+    url = reverse('court_comment', kwargs={'pk': court.id})
+    client = Client()
+    client.force_login(user)
+    response = client.get(url)
+    assert response.status_code == 200
+    assert 'swishapp/add_comment.html' in response.templates[0].name
+    assert 'form' in response.context
+    assert isinstance(response.context['form'], AddCommentForm)
+
+
+@pytest.mark.django_db
+def test_add_comment_post(user, court):
+    url = reverse('court_comment', kwargs={'pk': court.id})
+    client = Client()
+    client.force_login(user)
+    form_data = {'text': 'test comment by user'}
+    response = client.post(url, form_data)
+    assert response.status_code == 302
+    assert court.comment_set.filter(text='test comment by user').exists()
+
+
+# TESTY UPDATE'OWANIA KOMENTARZA
+@pytest.mark.django_db
+def test_update_comment_get(user, court, comment):
+    url = reverse('update_comment', kwargs={'pk': comment.id})
+    client = Client()
+    client.force_login(user)
+    response = client.get(url)
+    assert response.status_code == 200
+    assert 'form' in response.context
+    form = response.context['form']
+    assert form.instance == comment
+
+
+@pytest.mark.django_db
+def test_update_comment_post(user, court, comment):
+    url = reverse('update_comment', kwargs={'pk': comment.id})
+    client = Client()
+    client.force_login(user)
+    form_data = {'text': 'update comment'}
+    response = client.post(url, form_data)
+    assert response.status_code == 302
+    updated_comment = Comment.objects.get(id=comment.id)
+    assert updated_comment.text == 'update comment'
+
+
+@pytest.mark.django_db
+def test_update_comment_post_unauthorized(user, comment):
+    url = reverse('update_comment', kwargs={'pk': comment.id})
+    client = Client()
+    unauthorized_user = User.objects.create_user(username='unauthorized_user', password='test')
+    client.force_login(unauthorized_user)
+    form_data = {'text': 'update comment'}
+    response = client.post(url, form_data)
+    assert response.status_code == 403  # Forbidden

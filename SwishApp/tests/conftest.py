@@ -1,7 +1,7 @@
 import pytest
 from django.contrib.auth.models import User, Permission
 
-from SwishApp.models import Court, Sport, Match
+from SwishApp.models import Court, Sport, Match, Comment
 
 
 @pytest.fixture
@@ -105,3 +105,8 @@ def update_court(sport):
         'location': 'updatelocation',
         'intended_for': sport.id,
     }
+
+
+@pytest.fixture
+def comment(user, court):
+    return Comment.objects.create(user=user, court=court, text='test comment')

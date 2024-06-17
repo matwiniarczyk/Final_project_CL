@@ -5,8 +5,8 @@ from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import DeleteView, UpdateView
 
-from SwishApp.forms import SearchCourtForm, AddCourtForm
-from SwishApp.models import Court, Sport, Match
+from SwishApp.forms import SearchCourtForm, AddCourtForm, AddCommentForm
+from SwishApp.models import Court, Sport, Match, Comment
 
 
 class SearchCourtView(View):
@@ -75,6 +75,43 @@ class CourtDetailView(View):
         return render(request, 'swishapp/court_detail.html', {'court': court, 'matches': matches})
 
 
+class AddCommentToCourtView(LoginRequiredMixin, View):
+    def get(self, request, pk):
+        form = AddCommentForm()
+        court = Court.objects.get(pk=pk)
+        return render(request, 'swishapp/add_comment.html', {'form': form, 'court': court})
+
+    def post(self, request, pk):
+        form = AddCommentForm(request.POST)
+        if form.is_valid():
+            court = Court.objects.get(pk=pk)
+            comment = form.save(commit=False)  # tworzy instancje modelu na podstawie danych z formularza
+            comment.court = court
+            comment.user = request.user
+            comment.save()
+            return redirect("court_detail", pk)
+        return render(request, "swishapp/add_comment.html", {"form": form})
+
+
+class UpdateCommentToCourtView(UserPassesTestMixin, View):
+    def test_func(self):
+        comment = Comment.objects.get(pk=self.kwargs['pk'])
+        return self.request.user == comment.user
+
+    def get(self, request, pk):
+        comment = Comment.objects.get(pk=pk)
+        form = AddCommentForm(instance=comment)
+        return render(request, "swishapp/update_comment.html", {"form": form})
+
+    def post(self, request, pk):
+        comment = Comment.objects.get(pk=pk)
+        form = AddCommentForm(request.POST, instance=comment)
+        if form.is_valid():
+            form.save()
+            return redirect("court_detail", comment.court.id)
+        return render(request, "swishapp/add_comment.html", {"form": form})
+
+
 class CourtListView(View):
     def get(self, request):
         courts = Court.objects.all().order_by('location')
@@ -109,7 +146,7 @@ class AddMatchView(LoginRequiredMixin, View):
             added_match = Match.objects.create(sport=sport, day=day, time=time, added_by=added_by)
             added_match.court.set([court])
             messages.success(request, 'Match added')
-            return redirect('court_detail', pk=court.pk)
+            return redirect('court_detail', pk=pk)
 
 
 class MatchesListView(View):

@@ -1,6 +1,6 @@
 from django import forms
 
-from SwishApp.models import Court, Sport, Match
+from SwishApp.models import Court, Sport, Match, Comment
 
 
 # WALIDATORY
@@ -29,3 +29,10 @@ class AddCourtForm(forms.ModelForm):
         fields = '__all__'
 
 
+class AddCommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ['text']
+        widgets = {
+            'text': forms.Textarea(attrs={'class': 'form-control'})
+        }

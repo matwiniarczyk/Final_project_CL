@@ -8,6 +8,8 @@ urlpatterns = [
     path('delete_court/<int:pk>/', views.DeleteCourtView.as_view(), name='delete_court'),
     path('update_court/<int:pk>/', views.UpdateCourtView.as_view(), name='update_court'),
     path('court_detail/<int:pk>/', views.CourtDetailView.as_view(), name='court_detail'),
+    path('court_comment/<int:pk>/', views.AddCommentToCourtView.as_view(), name='court_comment'),
+    path('update_comment/<int:pk>/', views.UpdateCommentToCourtView.as_view(), name='update_comment'),
     path('court_list/', views.CourtListView.as_view(), name='court_list'),
     # ------------------------------------------------------------------------------------------#
     path('add_match/<int:pk>/', views.AddMatchView.as_view(), name='add_match'),
