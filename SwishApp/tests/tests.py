@@ -168,3 +168,42 @@ def test_matches_list_get(court, matches_list):
     assert response.context['matches'].count() == len(matches_list)
     for match in matches_list:
         assert match in response.context['matches']
+
+
+# TEST USUWANIA BOISKA
+@pytest.mark.django_db
+def test_delete_court_get(user, court):
+    url = reverse('delete_court', kwargs={'pk': court.id})
+    client = Client()
+    client.force_login(user)
+    assert Court.objects.filter(id=court.id).exists()
+    response = client.delete(url)
+    assert response.status_code == 302
+    assert not Court.objects.filter(id=court.id).exists()
+
+
+# TESTY UPDATE'OWANIA BOISKA
+@pytest.mark.django_db
+def test_update_court_get(user, court):
+    url = reverse('update_court', kwargs={'pk': court.id})
+    client = Client()
+    client.force_login(user)
+    response = client.get(url)
+    assert response.status_code == 200
+    assert 'swishapp/update_court.html' in response.templates[0].name
+    assert 'form' in response.context
+    assert isinstance(response.context['form'], AddCourtForm)
+
+
+@pytest.mark.django_db
+def test_update_court_post(user, court, update_court):
+    url = reverse('update_court', kwargs={'pk': court.id})
+    client = Client()
+    client.force_login(user)
+    response = client.post(url, update_court)
+    assert response.status_code == 302
+    assert response.url == reverse('court_list')
+    updated_court = Court.objects.get(id=court.id)
+    assert updated_court.name == 'update_name'
+    assert updated_court.location == 'updatelocation'
+

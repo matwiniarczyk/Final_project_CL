@@ -5,7 +5,7 @@ from SwishApp.models import Court, Sport, Match
 
 # WALIDATORY
 def check_if_letters(value):
-    if not value.isalpha():
+    if not value.replace(' ', '').isalpha():
         raise forms.ValidationError('Please enter letters only')
 
 

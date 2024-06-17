@@ -1,12 +1,12 @@
 import pytest
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Permission
 
 from SwishApp.models import Court, Sport, Match
 
 
 @pytest.fixture
 def user():
-    return User.objects.create_user(username='test_user', password='test_password')
+    return User.objects.create_superuser(username='test_user', password='test_password')
 
 
 @pytest.fixture
@@ -97,3 +97,11 @@ def matches_list(user, sport, court):
         lst.append(match)
     return lst
 
+
+@pytest.fixture
+def update_court(sport):
+    return {
+        'name': 'update_name',
+        'location': 'updatelocation',
+        'intended_for': sport.id,
+    }
