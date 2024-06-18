@@ -1,4 +1,5 @@
 import pytest
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase, Client
 from django.urls import reverse
@@ -25,8 +26,7 @@ def test_create_user_post(user_data):
     client = Client()
     response = client.post(url, user_data)
     assert response.status_code == 302
-    assert User.objects.filter(username=user_data['username']).exists()
-    # username przekazujemy w kwadratowych nawiasach, bo jest to klucz w słowniku user_data
+    assert settings.AUTH_USER_MODEL.objects.filter(username=user_data['username']).exists()
 
 
 @pytest.mark.django_db
@@ -34,8 +34,8 @@ def test_create_user_invalid_data_post(invalid_user_data):
     url = reverse('register')
     client = Client()
     response = client.post(url, invalid_user_data)
-    assert response.status_code == 200  # oczekujemy kodu 200, bo wracamy get'em na tę samą stronę
-    assert b'Passwords do not match, try again!' in response.content  # sprawdzamy, czy jest komunikat o błędzie
+    assert response.status_code == 200
+    assert b'Passwords do not match, try again!' in response.content
 
 
 def test_login():

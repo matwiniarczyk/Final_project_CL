@@ -1,12 +1,13 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin, PermissionRequiredMixin
-from django.shortcuts import render, redirect
+from django.contrib.auth.models import User
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import DeleteView, UpdateView
 
 from SwishApp.forms import SearchCourtForm, AddCourtForm, AddCommentForm
-from SwishApp.models import Court, Sport, Match, Comment
+from SwishApp.models import Court, Sport, Match, Comment, UserProfile
 
 
 class SearchCourtView(View):
@@ -149,9 +150,32 @@ class AddMatchView(LoginRequiredMixin, View):
             return redirect('court_detail', pk=pk)
 
 
-class MatchesListView(View):
-    def get(self, request, pk):
-        court = Court.objects.get(pk=pk)
-        matches = Match.objects.filter(court=court)
-        return render(request, 'swishapp/court_detail.html', {'matches': matches,
-                                                              'court': court})
+class ShowProfileView(LoginRequiredMixin, View):
+    def get(self, request):
+        user = request.user
+        user_profile = UserProfile.objects.get(user=user)
+        added_matches = Match.objects.filter(added_by=user).order_by('day')
+        planned_matches = user_profile.planned_matches.all().order_by('day')
+        courts_for_planned_matches = []
+        for planned_match in planned_matches:
+            courts = planned_match.court.all()
+            court = courts.first()
+            courts_for_planned_matches.append(court)
+        return render(request, 'swishapp/user_profile.html', {
+            "user": user,
+            'added_matches': added_matches,
+            'planned_matches': zip(planned_matches, courts_for_planned_matches),
+            # krotka dwóch list, gdzie elementy jednej i drugiej odpowiadają sobie względem indeksu
+        })
+
+
+def add_match_to_calendar(request, pk):
+    user_profile, created = UserProfile.objects.get_or_create(user=request.user)
+    match = Match.objects.get(id=pk)
+    if user_profile.planned_matches.filter(id=pk).exists():
+        messages.info(request, 'This match is already in your calendar.')
+    else:
+        user_profile.planned_matches.add(match)
+        messages.success(request, 'Match added to your calendar.')
+
+    return redirect('court_detail', pk=match.court.first().id)

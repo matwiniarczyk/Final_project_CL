@@ -1,7 +1,8 @@
 import pytest
+from django.conf import settings
 from django.contrib.auth.models import User, Permission
 
-from SwishApp.models import Court, Sport, Match, Comment
+from SwishApp.models import Court, Sport, Match, Comment, UserProfile
 
 
 @pytest.fixture
@@ -89,16 +90,6 @@ def match_data(user, sport):
 
 
 @pytest.fixture
-def matches_list(user, sport, court):
-    lst = []
-    for i in range(5):
-        match = Match.objects.create(day=i, time=i, added_by=user, sport=sport)
-        match.court.set([court])
-        lst.append(match)
-    return lst
-
-
-@pytest.fixture
 def update_court(sport):
     return {
         'name': 'update_name',
@@ -110,3 +101,15 @@ def update_court(sport):
 @pytest.fixture
 def comment(user, court):
     return Comment.objects.create(user=user, court=court, text='test comment')
+
+
+@pytest.fixture
+def match(user, sport, court):
+    match = Match.objects.create(
+        sport_id=sport.id,
+        day=1,
+        time=1,
+        added_by=user
+    )
+    match.court.set([court])
+    return match

@@ -55,7 +55,17 @@
     MATCHES:
     <ol>
         {% for match in matches %}
-            <li> Day: {{ match.get_day_display }}, Time: {{ match.get_time_display }}, {{ match.sport }}</li>
+            <li> Day: {{ match.get_day_display }},
+                Time: {{ match.get_time_display }},
+                {{ match.sport }} 
+                {% if user.is_authenticated %}
+                ---->
+                <form method="post" action="{% url 'add_match_to_calendar' match.id %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit">Add to calendar</button>
+                </form>
+                {% endif %}
+            </li>
         {% endfor %}
     </ol>
 
@@ -64,7 +74,7 @@
     <a href="{% url 'add_match' court.pk %}">
         <button>ADD MATCH</button>
     </a>
-    
+
     <br>
     <br>
     <a href="{% url 'court_list' %}">

@@ -5,7 +5,7 @@ from django.test import TestCase, Client
 from django.urls import reverse
 
 from SwishApp.forms import SearchCourtForm, AddCourtForm, AddCommentForm
-from SwishApp.models import Court, Match, Comment
+from SwishApp.models import Court, Match, Comment, UserProfile
 
 
 # TESTY WYSZUKIWANIA BOISK
@@ -156,20 +156,6 @@ def test_add_match_post(match_data, user):
     assert messages[1].message == 'This match already exists'
 
 
-# TEST LISTY MECZÓW
-@pytest.mark.django_db
-def test_matches_list_get(court, matches_list):
-    url = reverse('matches_list', kwargs={'pk': court.id})
-    client = Client()
-    response = client.get(url)
-    assert response.status_code == 200
-    assert 'court' in response.context
-    assert response.context['court'] == court
-    assert response.context['matches'].count() == len(matches_list)
-    for match in matches_list:
-        assert match in response.context['matches']
-
-
 # TEST USUWANIA BOISKA
 @pytest.mark.django_db
 def test_delete_court_get(user, court):
@@ -253,7 +239,7 @@ def test_update_comment_post(user, court, comment):
     form_data = {'text': 'update comment'}
     response = client.post(url, form_data)
     assert response.status_code == 302
-    updated_comment = Comment.objects.get(id=comment.id)
+    updated_comment = Comment.objects.get(id=comment.id)  # sprawdzamy, czy jest komunikat o błędzie
     assert updated_comment.text == 'update comment'
 
 
@@ -266,3 +252,40 @@ def test_update_comment_post_unauthorized(user, comment):
     form_data = {'text': 'update comment'}
     response = client.post(url, form_data)
     assert response.status_code == 403  # Forbidden
+
+
+# TEST WIDOKU PROFILU
+@pytest.mark.django_db
+def test_user_profile_get(user):
+    url = reverse('user_profile')
+    client = Client()
+    client.force_login(user)
+    response = client.get(url)
+    assert response.status_code == 200
+    assert 'user' in response.context
+    assert 'planned_matches' in response.context
+    assert 'added_matches' in response.context
+
+
+# TESTY DODAWANIA MECZU DO KALENDARZA
+@pytest.mark.django_db
+def test_add_match_to_calendar(user, match):
+    url = reverse('add_match_to_calendar', kwargs={'pk': match.pk})
+    client = Client()
+    client.force_login(user)
+    response = client.get(url)
+    user_profile = UserProfile.objects.get(user=user)
+    assert response.status_code == 302
+    assert match in user_profile.planned_matches.all()
+
+
+@pytest.mark.django_db
+def test_add_match_to_calendar_already_added(user, match):
+    url = reverse('add_match_to_calendar', kwargs={'pk': match.pk})
+    client = Client()
+    client.force_login(user)
+    response = client.get(url)
+    user_profile = UserProfile.objects.get(user=user)
+    assert response.status_code == 302
+    assert list(user_profile.planned_matches.all()) == [match]
+

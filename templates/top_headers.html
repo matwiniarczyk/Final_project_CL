@@ -6,11 +6,12 @@
     </div>
     <div>
         {% if user.is_authenticated %}
-            Witaj {{ user }}! Znajdź mecz dla siebie!
-            <a href="{% url 'logout' %}">wyloguj</a>
+            Hello {{ user }}! Find yourself a match!
+            <a href="{% url 'user_profile' %}">Show my profile</a>
+            <a href="{% url 'logout' %}">logout</a>
         {% else %}
-            <a href="{% url 'register' %}">zarejestruj</a>
-            <a href="{% url 'login' %}">zaloguj</a>
+            <a href="{% url 'register' %}">register</a>
+            <a href="{% url 'login' %}">log in</a>
         {% endif %}
     </div>
 </div>
