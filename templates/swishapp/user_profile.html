@@ -34,6 +34,12 @@
                 <td>{{ planned_match.get_day_display }} at {{ planned_match.get_time_display }}</td>
                 <td>{{ court.name }} in {{ court.location }}</td>
                 <td>{{ planned_match.sport }}</td>
+                <td>
+                    <form method="post" action="{% url 'delete_planned_match' planned_match.id %}">
+                        {% csrf_token %}
+                        <button type="submit">Delete match</button>
+                    </form>
+                </td>
             </tr>
         {% endfor %}
         </tbody>

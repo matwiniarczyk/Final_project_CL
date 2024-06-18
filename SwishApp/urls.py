@@ -20,4 +20,5 @@ urlpatterns = [
     # ------------------------------------------------------------------------------------------#
     path('user_profile', views.ShowProfileView.as_view(), name='user_profile'),
     path('add_match_to_calendar/<int:pk>/', add_match_to_calendar, name='add_match_to_calendar'),
+    path('delete_planned_match/<int:pk>/', views.DeletePlannedMatchView.as_view(), name='delete_planned_match'),
 ]

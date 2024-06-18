@@ -5,7 +5,7 @@ from django.test import TestCase, Client
 from django.urls import reverse
 
 from SwishApp.forms import SearchCourtForm, AddCourtForm, AddCommentForm
-from SwishApp.models import Court, Match, Comment, UserProfile
+from SwishApp.models import Court, Match, Comment, UserProfile, UserProfileMatch
 
 
 # TESTY WYSZUKIWANIA BOISK
@@ -289,3 +289,14 @@ def test_add_match_to_calendar_already_added(user, match):
     assert response.status_code == 302
     assert list(user_profile.planned_matches.all()) == [match]
 
+
+# TEST USUWANIA MECZU Z KALENDARZA
+@pytest.mark.django_db
+def test_delete_planned_match(user, planned_match):
+    url = reverse('delete_planned_match', kwargs={'pk': planned_match.pk})
+    client = Client()
+    client.force_login(user)
+    assert UserProfileMatch.objects.filter(pk=planned_match.pk).exists()
+    response = client.post(url)
+    assert response.status_code == 302
+    assert not UserProfileMatch.objects.filter(pk=planned_match.pk).exists()

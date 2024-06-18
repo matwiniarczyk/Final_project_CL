@@ -87,6 +87,29 @@ class UserProfile(models.Model):
             UserProfile.objects.create(user=instance)
         else:
             instance.userprofile.save()
+        """
+        To jest SYGNAŁ, który jest wyzwalany po zapisaniu (post_save) obiektu User (sender). 
+        Sygnały w Django są mechanizmem umożliwiającym wykonywanie określonych działań w odpowiedzi na zdarzenia
+        zachodzące w systemie, takie jak zapisywanie, usuwanie lub aktualizowanie obiektów w bazie danych.
+
+        Sygnał post_save:
+        @receiver(post_save, sender=User): To dekorator sygnału (@receiver) używany do
+        zarejestrowania funkcji create_or_update_user_profile jako odbiorcy sygnału post_save.
+        Oznacza to, że funkcja create_or_update_user_profile zostanie wywołana za każdym razem,
+        gdy zostanie zapisany obiekt User.
+
+        Funkcja create_or_update_user_profile:
+        Ta funkcja przyjmuje kilka argumentów: sender (klasa wysyłająca sygnał),
+        instance (instancja obiektu User, który został zapisany),
+        created (flaga wskazująca, czy został utworzony nowy obiekt).
+       
+
+        Interpretacja szczegółowa:
+        Sygnał post_save jest wysyłany za każdym razem, gdy obiekt User jest zapisywany w bazie danych.
+        @receiver(post_save, sender=User) rejestruje funkcję create_or_update_user_profile jako odbiorcę tego sygnału.
+        Gdy User jest tworzony (created jest prawdziwe), funkcja tworzy nowy UserProfile dla tego użytkownika.
+        Gdy User jest aktualizowany (nie jest nowo utworzony), funkcja aktualizuje istniejący UserProfile.
+        """
 
 
 class UserProfileMatch(models.Model):

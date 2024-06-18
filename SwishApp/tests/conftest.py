@@ -2,7 +2,7 @@ import pytest
 from django.conf import settings
 from django.contrib.auth.models import User, Permission
 
-from SwishApp.models import Court, Sport, Match, Comment, UserProfile
+from SwishApp.models import Court, Sport, Match, Comment, UserProfile, UserProfileMatch
 
 
 @pytest.fixture
@@ -113,3 +113,10 @@ def match(user, sport, court):
     )
     match.court.set([court])
     return match
+
+
+@pytest.fixture
+def planned_match(user, match):
+    user_profile = UserProfile.objects.get(user=user)
+    user_profile_match = UserProfileMatch.objects.create(user_profile=user_profile, match=match)
+    return user_profile_match

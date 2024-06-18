@@ -7,7 +7,7 @@ from django.views import View
 from django.views.generic import DeleteView, UpdateView
 
 from SwishApp.forms import SearchCourtForm, AddCourtForm, AddCommentForm
-from SwishApp.models import Court, Sport, Match, Comment, UserProfile
+from SwishApp.models import Court, Sport, Match, Comment, UserProfile, UserProfileMatch
 
 
 class SearchCourtView(View):
@@ -147,7 +147,7 @@ class AddMatchView(LoginRequiredMixin, View):
             added_match = Match.objects.create(sport=sport, day=day, time=time, added_by=added_by)
             added_match.court.set([court])
             messages.success(request, 'Match added')
-            return redirect('court_detail', pk=pk)
+            return redirect('add_match', pk=pk)
 
 
 class ShowProfileView(LoginRequiredMixin, View):
@@ -179,3 +179,11 @@ def add_match_to_calendar(request, pk):
         messages.success(request, 'Match added to your calendar.')
 
     return redirect('court_detail', pk=match.court.first().id)
+
+
+class DeletePlannedMatchView(View):
+    def post(self, request, pk):
+        planned_match = UserProfileMatch.objects.get(pk=pk)
+        planned_match.delete()
+        messages.success(request, 'Match deleted from your calendar.')
+        return redirect('user_profile')
