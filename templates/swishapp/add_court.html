@@ -1,9 +1,15 @@
 {% extends 'base.html' %}
 {% block content %}
-    <h2>Add your court</h2>
-    <form method="post" action="{% url 'add_court' %}">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Add</button>
-    </form>
+    <div class="container">
+        <div class="page-header">
+            <h2>Add court</h2>
+        </div>
+        <div class="form-group">
+            <form method="post" action="{% url 'add_court' %}">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-plus" style="margin-right: 5px;"></span> Add</button>
+            </form>
+        </div>
+    </div>
 {% endblock %}

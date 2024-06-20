@@ -1,11 +1,21 @@
 {% extends 'base.html' %}
 {% block content %}
-    <h1>Update {{ court }}</h1>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <input type="submit" value="Update">
-    </form>
-    <br>
-    <a href="{% url 'court_list' %}"><button>BACK TO COURT LIST</button></a>
+    <div class="container">
+        <div class="page-header">
+            <h2>Update '{{ court }}'</h2>
+        </div>
+        <div>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <input type="submit" value="Update">
+            </form>
+        </div>
+        <div>
+            <br>
+            <a href="{% url 'court_list' %}">
+                <button class="btn btn-primary">BACK TO COURT LIST</button>
+            </a>
+        </div>
+    </div>
 {% endblock %}

@@ -3,8 +3,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>HomePage</title>
     <link type="text/css" href="{% static 'base.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 </head>
 <body>
 <div>
@@ -12,7 +16,37 @@
 </div>
 <div>
     {% block content %}
-        Description
+        <div class="container">
+        <div class="page-header">
+            <h2>Hello {{ user }}! Find yourself a match!</h2>
+        </div>
+            <div class="jumbotron" style="font-size: 18px;">
+                Welcome to SwishApp!
+                <br><br>
+                SwishApp is your go-to platform for organizing and participating in sports matches in your local
+                community.
+                Whether you're into basketball, volleyball, football, handball, tennis, or ping-pong, SwishApp makes it
+                easy
+                to find, join, and manage matches.
+                <br><br>
+                Features:
+                <br>
+                -Add Matches: Easily create matches for your favorite sports, specify the day, time, and location, and
+                invite
+                others to join.<br>
+                -Match Calendar: Keep track of your planned matches with our intuitive calendar view. Never miss a game
+                again!<br>
+                -User Profiles: Manage your sports activities and preferences in one place. See the matches you've added
+                and
+                the ones you've planned to join.<br>
+                -Find Courts: Discover courts near you with detailed information on facilities and availability.<br>
+                -Community Engagement: Connect with other sports enthusiasts in your area. Share your passion and
+                improve
+                your skills through regular games.<br><br>
+                SwishApp is designed to foster a vibrant sports community, making it easier than ever to stay active and
+                engaged. Join us and start playing today!
+            </div>
+        </div>
     {% endblock %}
 </div>
 </body>

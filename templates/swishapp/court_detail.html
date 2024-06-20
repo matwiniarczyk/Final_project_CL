@@ -1,83 +1,94 @@
 {% extends 'base.html' %}
 {% block content %}
-    <table>
-        <thead>
-        <tr>
-            <th>Name</th>
-            <th>Location</th>
-            <th>Intended for</th>
-            <th>Free parking</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <td>{{ court.name }}</td>
-            <td>{{ court.location }}</td>
-            <td>
-                {% for sport in court.intended_for.all %}
-                    {{ sport.name }}{% if not forloop.last %},{% endif %}
-                    {#forloop.last - zmienna kontekstowa pętli for, która zwraca true na ostatnim przetwarzanym elemencie#}
+    <div class="container">
+        <div class="page-header"><h2>Details</h2></div>
+        <div>
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Location</th>
+                    <th>Intended for</th>
+                    <th>Free parking</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>{{ court.name }}</td>
+                    <td>{{ court.location }}</td>
+                    <td>
+                        {% for sport in court.intended_for.all %}
+                            {{ sport.name }}{% if not forloop.last %},{% endif %}
+                            {#forloop.last - zmienna kontekstowa pętli for, która zwraca true na ostatnim przetwarzanym elemencie#}
+                        {% endfor %}
+                    </td>
+                    <td>
+                        {% if court.free_parking_around %}
+                            yes
+                        {% else %}
+                            no
+                        {% endif %}
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div>
+            <br>
+            COMMENTS:
+            <ul class="list-group">
+                {% for comment in court.comment_set.all %}
+                    <li class="list-group-item">{{ comment.text }} -- <small>{{ comment.user }}</small>
+                        {% if comment.user == user %}
+                            <a href="{% url 'update_comment' comment.id %}"><small>edit</small></a>
+                        {% endif %}
+                    </li>
                 {% endfor %}
-            </td>
-            <td>
-                {% if court.free_parking_around %}
-                    yes
-                {% else %}
-                    no
-                {% endif %}
-            </td>
-        </tr>
-        </tbody>
-    </table>
-
-    <br>
-    COMMENTS:
-    <ul>
-        {% for comment in court.comment_set.all %}
-            <li>{{ comment.text }} -- <small>{{ comment.user }}</small>
-                {% if comment.user == user %}
-                    <a href="{% url 'update_comment' comment.id %}"><small>edit</small></a>
-                {% endif %}
-            </li>
-        {% endfor %}
-    </ul>
-
-    <br>
-    ADD COMMENT-
-    {% if user.is_authenticated %}
-        <a href="{% url 'court_comment' court.id %}">
-            <button>ADD COMMENT</button>
-        </a>
-    {% endif %}
-
-    <br>
-    <br>
-    MATCHES:
-    <ol>
-        {% for match in matches %}
-            <li> Day: {{ match.get_day_display }},
-                Time: {{ match.get_time_display }},
-                {{ match.sport }} 
-                {% if user.is_authenticated %}
-                ---->
-                <form method="post" action="{% url 'add_match_to_calendar' match.id %}" style="display:inline;">
-                    {% csrf_token %}
-                    <button type="submit">Add to calendar</button>
-                </form>
-                {% endif %}
-            </li>
-        {% endfor %}
-    </ol>
-
-    <br>
-    ADD MATCH -
-    <a href="{% url 'add_match' court.pk %}">
-        <button>ADD MATCH</button>
-    </a>
-
-    <br>
-    <br>
-    <a href="{% url 'court_list' %}">
-        <button>BACK TO COURT LIST</button>
-    </a>
+            </ul>
+        </div>
+        <div>
+            <br>
+            ADD COMMENT-
+            {% if user.is_authenticated %}
+                <a href="{% url 'court_comment' court.id %}">
+                    <button class="btn btn-default">Add comment</button>
+                </a>
+            {% endif %}
+        </div>
+        <div>
+            <br>
+            <br>
+            MATCHES:
+            <ol class="list-group">
+                {% for match in matches %}
+                    <li class="list-group-item"> Day: {{ match.get_day_display }},
+                        Time: {{ match.get_time_display }},
+                        {{ match.sport }}
+                        {% if user.is_authenticated %}
+                            ---->
+                            <form method="post" action="{% url 'add_match_to_calendar' match.id %}"
+                                  style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-default">Add to calendar</button>
+                            </form>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ol>
+        </div>
+        <div>
+            <br>
+            ADD MATCH -
+            <a href="{% url 'add_match' court.pk %}">
+                <button class="btn btn-default">Add match</button>
+            </a>
+        </div>
+        <div>
+            <br>
+            <br>
+            <a href="{% url 'court_list' %}">
+                <button class="btn btn-primary">BACK TO COURT LIST</button>
+            </a>
+        </div>
+    </div>
 {% endblock %}

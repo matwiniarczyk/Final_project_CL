@@ -1,47 +1,56 @@
 {% extends 'base.html' %}
 {% block content %}
-    This is profile view for {{ user }}
-    <br>
-    <br>
-    These are the matches you added:
-    <ul>
-        {% for match in added_matches %}
-            <li>Day: {{ match.get_day_display }}, Time: {{ match.get_time_display }}, {{ match.sport }} --
-                {% for court in match.court.all %}
-                    {{ court.name }}
+    <div class="container">
+        <div class="page-header">
+            <h2>This is profile view for {{ user }}</h2>
+        </div>
+        <div>
+            <br>
+            <br>
+            <h4>These are the matches you added:</h4>
+            <ul class="list-group">
+                {% for match in added_matches %}
+                    {% if match.court.exists %}
+                        <li class="list-group-item">Day: {{ match.get_day_display }}, Time: {{ match.get_time_display }}, {{ match.sport }} --
+                            {% for court in match.court.all %}
+                                {{ court.name }}
+                            {% endfor %}
+                        </li>
+                    {% endif %}
                 {% endfor %}
-            </li>
-        {% endfor %}
-    </ul>
-
-    <br>
-    MATCHES CALENDAR:
-    <br>
-    <br>
-    <table>
-        <thead>
-        <tr>
-            <th></th>
-            <th>When</th>
-            <th>Where</th>
-            <th>What</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for planned_match, court in planned_matches %}
-            <tr>
-                <td>{{ forloop.counter }}.</td>
-                <td>{{ planned_match.get_day_display }} at {{ planned_match.get_time_display }}</td>
-                <td>{{ court.name }} in {{ court.location }}</td>
-                <td>{{ planned_match.sport }}</td>
-                <td>
-                    <form method="post" action="{% url 'delete_planned_match' planned_match.id %}">
-                        {% csrf_token %}
-                        <button type="submit">Delete match</button>
-                    </form>
-                </td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+            </ul>
+        </div>
+        <div>
+            <br>
+            <h4>Match calendar:</h4>
+            <br>
+            <br>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th></th>
+                    <th>Date</th>
+                    <th>Location</th>
+                    <th>Sport</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for planned_match, court in planned_matches %}
+                    <tr>
+                        <td>{{ forloop.counter }}.</td>
+                        <td>{{ planned_match.get_day_display }} at {{ planned_match.get_time_display }}</td>
+                        <td>{{ court.name }} in {{ court.location }}</td>
+                        <td>{{ planned_match.sport }}</td>
+                        <td>
+                            <form method="post" action="{% url 'delete_planned_match' planned_match.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger"><span class="glyphicon glyphicon-remove"></span></button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 {% endblock %}

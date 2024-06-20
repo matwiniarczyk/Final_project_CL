@@ -1,17 +1,26 @@
-<div class="topnav">
-    <div>
-        <a href="{% url 'search_court' %}">Search court</a>
-        <a href="{% url 'add_court' %}">Add court</a>
-        <a href="{% url 'court_list' %}">Courts list</a>
+<nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <div class="navbar-brand">
+                SwishApp:
+            </div>
+        </div>
+        <ul class="nav navbar-nav navbar-right">
+            {% if user.is_authenticated %}
+                <li><a href="{% url 'user_profile' %}">Show my profile</a></li>
+                <li><a href="{% url 'logout' %}">Logout</a></li>
+            {% else %}
+                <li><a href="{% url 'register' %}">Register</a></li>
+                <li><a href="{% url 'login' %}">Login</a></li>
+            {% endif %}
+        </ul>
+        <div>
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="/">Home</a></li>
+                <li><a href="{% url 'search_court' %}">Search court</a></li>
+                <li><a href="{% url 'add_court' %}">Add court</a></li>
+                <li><a href="{% url 'court_list' %}">Court list</a></li>
+            </ul>
+        </div>
     </div>
-    <div>
-        {% if user.is_authenticated %}
-            Hello {{ user }}! Find yourself a match!
-            <a href="{% url 'user_profile' %}">Show my profile</a>
-            <a href="{% url 'logout' %}">logout</a>
-        {% else %}
-            <a href="{% url 'register' %}">register</a>
-            <a href="{% url 'login' %}">log in</a>
-        {% endif %}
-    </div>
-</div>
+</nav>

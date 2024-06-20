@@ -1,45 +1,54 @@
 {% extends 'base.html' %}
 {% block content %}
-    <table>
-        <thead>
-        <tr>
-            <th>Name</th>
-            <th>Location</th>
-            <th>Intended for</th>
-            <th>Free parking</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for court in courts %}
+    <div class="container">
+    <div class="page-header">
+        <h2>List of courts available on our page</h2>
+    </div>
+        <table class="table-striped">
+            <thead>
             <tr>
-                <td>{{ court.name }}</td>
-                <td>{{ court.location }}</td>
-                <td>
-                    {% for sport in court.intended_for.all %}
-                        {{ sport.name }}{% if not forloop.last %},{% endif %}
-                        {#forloop.last - zmienna kontekstowa pętli for, która zwraca true na ostatnim przetwarzanym elemencie#}
-                    {% endfor %}
-                </td>
-                <td>
-                    {% if court.free_parking_around %}
-                        yes
-                    {% else %}
-                        no
-                    {% endif %}
-                </td>
-                <td>
-                    <a href="{% url 'court_detail' court.id %}">
-                        <button>MORE INFO</button>
-                    </a>
-                </td>
-                <td>
-                    {% if user.is_superuser %}
-                            <a href="{% url 'delete_court' court.id %}"><button type="submit">Delete Court</button></a>
-                            <a href="{% url 'update_court' court.id %}"><button type="submit">Update Court</button></a>
-                    {% endif %}
-                </td>
+                <th class="text-center">Name</th>
+                <th class="text-center" style="padding-left: 20px;">Location</th>
+                <th class="text-center">Intended for</th>
+                <th class="text-center">Free parking</th>
             </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+            {% for court in courts %}
+                <tr>
+                    <td>{{ court.name }}</td>
+                    <td style="padding-left: 20px;">{{ court.location }}</td>
+                    <td class="text-center">
+                        {% for sport in court.intended_for.all %}
+                            {{ sport.name }}{% if not forloop.last %},{% endif %}
+                            {#forloop.last - zmienna kontekstowa pętli for, która zwraca true na ostatnim przetwarzanym elemencie#}
+                        {% endfor %}
+                    </td>
+                    <td class="text-center">
+                        {% if court.free_parking_around %}
+                            yes
+                        {% else %}
+                            no
+                        {% endif %}
+                    </td>
+                    <td style="padding-left: 20px;">
+                        <a href="{% url 'court_detail' court.id %}">
+                            <button type="button" class="btn btn-default">More info</button>
+                        </a>
+                    </td>
+                    <td>
+                        {% if user.is_superuser %}
+                            <a href="{% url 'delete_court' court.id %}">
+                                <button type="submit" class="btn btn-danger">Delete Court</button>
+                            </a>
+                            <a href="{% url 'update_court' court.id %}">
+                                <button type="submit" class="btn btn-info">Update Court</button>
+                            </a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
 {% endblock %}

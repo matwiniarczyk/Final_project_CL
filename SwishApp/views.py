@@ -183,7 +183,8 @@ def add_match_to_calendar(request, pk):
 
 class DeletePlannedMatchView(View):
     def post(self, request, pk):
-        planned_match = UserProfileMatch.objects.get(pk=pk)
+        user_profile = UserProfile.objects.get(user=request.user)
+        planned_match = user_profile.planned_matches.filter(id=pk)
         planned_match.delete()
         messages.success(request, 'Match deleted from your calendar.')
         return redirect('user_profile')

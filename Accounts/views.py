@@ -12,11 +12,14 @@ class CreateUserView(View):
         username = request.POST.get('username')
         password = request.POST.get('password')
         password_2 = request.POST.get('password2')
-        if password != "" and password == password_2:
+        if User.objects.filter(username=username).exists():
+            return render(request, "accounts/create_user.html",
+                          {"error": "Username is already taken."})
+        elif password != "" and password == password_2:
             u = User(username=username)
             u.set_password(password)
             u.save()
-            return redirect('base')
+            return redirect('login')
         return render(request, "accounts/create_user.html",
                       {"error": "Passwords do not match, try again!"})
 
@@ -28,14 +31,14 @@ class LoginView(View):
     def post(self, request):
         username = request.POST.get('username')
         password = request.POST.get('password')
-
         user = authenticate(username=username, password=password)
         if user is not None:
             redirect_url = request.GET.get('next', 'base')
             login(request, user)
             return redirect(redirect_url)
         else:
-            return redirect('login')
+            return render(request, "accounts/login.html",
+                          {"error": "Wrong password or username!"})
 
 
 class LogoutView(View):
