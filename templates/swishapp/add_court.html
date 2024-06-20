@@ -8,8 +8,15 @@
             <form method="post" action="{% url 'add_court' %}">
                 {% csrf_token %}
                 {{ form.as_p }}
-                <button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-plus" style="margin-right: 5px;"></span> Add</button>
+                <button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-plus"
+                                                                    style="margin-right: 5px;"></span> Add
+                </button>
             </form>
+        </div>
+        <div>
+            <a href="{% url 'court_list' %}">
+                <button class="btn btn-primary">SHOW COURT LIST</button>
+            </a>
         </div>
     </div>
 {% endblock %}

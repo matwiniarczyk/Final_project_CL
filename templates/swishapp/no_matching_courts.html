@@ -1,6 +1,17 @@
-<div class="container">
-  <h2>Sorry, but there is no courts matching your requirements</h2>
-  <div class="alert alert-info">
-    <strong>Info!</strong> You should add a court in this city via this <a href="{% url 'add_court' %}" class="alert-link">link</a>.
-  </div>
-</div>
+{% extends 'base.html' %}
+{% block content %}
+    <div class="container">
+        <div class="page-header">
+            <h2>Sorry, but there is no courts matching your requirements</h2>
+            <div class="alert alert-info">
+                <strong>Info!</strong> You should add a court in this city via this <a href="{% url 'add_court' %}"
+                                                                                       class="alert-link">link</a>.
+            </div>
+        </div>
+        <div>
+            <a href="{% url 'search_court' %}">
+                <button class="btn btn-primary">BACK TO SEARCHING</button>
+            </a>
+        </div>
+    </div>
+{% endblock %}

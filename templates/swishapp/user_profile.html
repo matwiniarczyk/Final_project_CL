@@ -13,7 +13,7 @@
                     {% if match.court.exists %}
                         <li class="list-group-item">Day: {{ match.get_day_display }}, Time: {{ match.get_time_display }}, {{ match.sport }} --
                             {% for court in match.court.all %}
-                                {{ court.name }}
+                                <a href="{% url 'court_detail' court.id %}">{{ court.name }}</a>
                             {% endfor %}
                         </li>
                     {% endif %}
@@ -39,7 +39,7 @@
                     <tr>
                         <td>{{ forloop.counter }}.</td>
                         <td>{{ planned_match.get_day_display }} at {{ planned_match.get_time_display }}</td>
-                        <td>{{ court.name }} in {{ court.location }}</td>
+                        <td> <a href="{% url 'court_detail' court.id %}">{{ court.name }}</a> in {{ court.location }}</td>
                         <td>{{ planned_match.sport }}</td>
                         <td>
                             <form method="post" action="{% url 'delete_planned_match' planned_match.id %}">
